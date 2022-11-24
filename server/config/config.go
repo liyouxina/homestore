@@ -13,9 +13,9 @@ var (
 	serverConfig *ServerConfig
 )
 
-func GetConfig(fullPath *string) ServerConfig {
+func GetConfig(fullPath *string) (ServerConfig, error) {
 	if serverConfig != nil {
-		return *serverConfig
+		return *serverConfig, nil
 	}
-	return ServerConfig{}
+	return ServerConfig{}, nil
 }
