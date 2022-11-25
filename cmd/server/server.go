@@ -9,7 +9,6 @@ import (
 
 var (
 	configFullPath = flag.String("config", "", "homestore server config file full path")
-	port           = flag.Int("port", 0, "homestore server port")
 )
 
 func main() {
@@ -20,6 +19,7 @@ func main() {
 	serverConfig, err := config.GetConfig(configFullPath)
 	if err != nil {
 		logrus.Error(err)
+		return
 	}
 	instance := server.Builder().
 		SetConfig(serverConfig).
