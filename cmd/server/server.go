@@ -7,22 +7,13 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
-var (
-	configFullPath = flag.String("config", "", "homestore server config file full path")
-)
-
 func main() {
 	defer func() {
 		err := recover()
 		logrus.Error(err)
 	}()
-	serverConfig, err := config.GetConfig(configFullPath)
-	if err != nil {
-		logrus.Error(err)
-		return
-	}
 	instance := server.Builder().
-		SetConfig(serverConfig).
+		SetConfig(config.GetConfig()).
 		Build()
 	instance.Run()
 }
