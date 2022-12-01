@@ -1,0 +1,3 @@
+port: 1999
+receiver_port: 2000
+db_path: /var/homestore

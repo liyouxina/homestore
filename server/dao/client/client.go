@@ -3,7 +3,7 @@ package client
 import (
 	"github.com/liyouxina/homestore/common/file_utils"
 	"github.com/liyouxina/homestore/server/config"
-	"github.com/liyouxina/homestore/server/dao"
+	"github.com/liyouxina/homestore/server/dao/common"
 	"github.com/sirupsen/logrus"
 	"gorm.io/driver/sqlite"
 	"gorm.io/gorm"
@@ -12,7 +12,7 @@ import (
 var db *gorm.DB
 
 type HomestoreClient struct {
-	dao.Common
+	common.Common
 	Name string `json:"name"`
 	Path string `json:"path"`
 }
@@ -27,8 +27,7 @@ func QueryAll() []*HomestoreClient {
 	return clients
 }
 
-
-func init()  {
+func Init() {
 	serverConfig, err := config.GetConfig()
 	if err != nil {
 		logrus.Error("init db error HomestoreClient", err)
@@ -42,7 +41,8 @@ func init()  {
 	}
 	db, err := gorm.Open(sqlite.Open(dbFullPath))
 	if err != nil {
-		logrus.Error("connect db error HomestoreClient", err)
+		logrus.Error(err)
+		logrus.Errorf("connect db error HomestoreClient %s", dbFullPath)
 		panic(err)
 	}
 	if !exists {

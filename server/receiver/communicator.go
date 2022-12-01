@@ -3,6 +3,7 @@ package receiver
 import (
 	"encoding/json"
 	"errors"
+	"github.com/liyouxina/homestore/common/go_utils"
 	"github.com/sirupsen/logrus"
 	"net"
 	"time"
@@ -21,23 +22,40 @@ type Communicator struct {
 	waitingPool map[int64]chan []byte
 }
 
-func (c *Communicator) Keep(pool map[string]*Communicator) string {
+func (c *Communicator) RegisterInPool(pool map[string]*Communicator) error {
+	id, err := c.GetClientName()
+	if err != nil {
+		logrus.Error("get", err)
+		return err
+	}
+	pool[*id] = c
+	return nil
+}
+
+func (c *Communicator) Keep() {
 	defer func() {
 		err := recover()
-		logrus.Error("keep failed", err)
-		pool[id] = nil
+		if err != nil {
+			logrus.Error("keep failed", err)
+		}
+		_ = c.connection.Close()
 	}()
 	c.keepSending()
 	c.keepReceiving()
 }
 
-func (c *Communicator) who() (*string, error) {
+func (c *Communicator) GetClientName() (*string, error) {
 	callResult, err := c.Call(METHOD_WHO, nil)
 	if err != nil {
 		logrus.Error("call who failed", err)
 		return nil, err
 	}
-	id := callResult
+	id, exists, err := go_utils.GetStringFromMap("name", callResult)
+	if !exists {
+		logrus.Error("GetClientName no name")
+		return nil, errors.New("GetClientName no name")
+	}
+	return id, nil
 }
 
 func (c *Communicator) keepSending() {
